@@ -8,7 +8,6 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL21.*;
 import static org.lwjgl.opengl.GL31.*;
 
-
 public abstract class Mesh {
     
     private static Mesh currentMesh;

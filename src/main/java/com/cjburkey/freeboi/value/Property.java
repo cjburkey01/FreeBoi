@@ -2,6 +2,7 @@ package com.cjburkey.freeboi.value;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Property<T> extends ReadOnlyProperty<T> {
     
@@ -20,7 +21,7 @@ public class Property<T> extends ReadOnlyProperty<T> {
     }
     
     public void set(T val) {
-        if (value == val || (value != null && value.equals(val))) {
+        if (Objects.equals(value, val)) {
             return;
         }
         for (IListener<T> listener : listeners) {

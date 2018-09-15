@@ -1,6 +1,5 @@
 package com.cjburkey.freeboi.mesh;
 
-import com.cjburkey.freeboi.Game;
 import com.cjburkey.freeboi.shader.Shader;
 
 import static org.lwjgl.opengl.GL15.*;

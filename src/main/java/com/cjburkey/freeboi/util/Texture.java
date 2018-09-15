@@ -1,5 +1,6 @@
 package com.cjburkey.freeboi.util;
 
+import com.cjburkey.freeboi.Debug;
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -51,14 +52,6 @@ public final class Texture {
         memFree(imageBytesBuffer);
     }
     
-    Texture(byte[] rawFileBits, boolean pixelPerfect, boolean repeat) {
-        this(rawFileBits, GL_TEXTURE0, pixelPerfect, repeat);
-    }
-    
-    Texture(byte[] rawFileBits) {
-        this(rawFileBits, true, true);
-    }
-    
     public void bind() {
         if (valid) {
             glBindTexture(GL_TEXTURE_2D, texture);
@@ -66,6 +59,10 @@ public final class Texture {
     }
     
     public void destroy() {
+        if (!valid) {
+            Debug.warn("Texture already destroyed");
+            return;
+        }
         unbind();
         valid = false;
         glDeleteTextures(texture);

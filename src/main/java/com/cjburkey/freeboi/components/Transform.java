@@ -29,6 +29,26 @@ public class Transform extends ECSComponent {
         }
     }
     
+    public Vector3f transformPoint(Vector3f point) {
+        return rotation.get(new Matrix4f()).invert().transformPosition(point, new Vector3f());
+    }
+    
+    public Vector3f transformDir(Vector3f dir, boolean normalize) {
+        dir = new Vector3f(dir);
+        if (dir.x != 0.0f || dir.y != 0.0f || dir.z != 0.0f) {
+            dir.normalize();
+        }
+        rotation.get(new Matrix4f()).invert().transformDirection(dir);
+        if (normalize && (dir.x != 0.0f || dir.y != 0.0f || dir.z != 0.0f)) {
+            dir.normalize();
+        }
+        return dir;
+    }
+    
+    public Vector3f transformDir(Vector3f dir) {
+        return transformDir(dir, true);
+    }
+    
     private void updateModelMatrix() {
         modelMatrix.identity().translate(position).rotate(rotation).scale(scale);
     }

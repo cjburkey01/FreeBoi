@@ -7,22 +7,25 @@ import java.util.UUID;
 
 public final class ECSEntity extends SafeHandled {
     
-    private final UUID uuid = UUID.randomUUID();
+    public final UUID uuid = UUID.randomUUID();
     public final Transform transform = new Transform();
-    private final SafeHandle<ECSComponent> components = new SafeHandle<>();
+    private final SafeHandle<ECSComponent> components = new SafeHandle<>(true);
     public boolean enabled = true;
     
     ECSEntity() {
         addComponent(transform);
     }
     
-    public <T extends ECSComponent> void addComponent(T component) {
+    public <T extends ECSComponent> ECSEntity addComponent(T component) {
         component.setParent(this);
         components.addObject(component);
+        return this;
     }
     
-    public <T extends ECSComponent> void removeComponent(Class<T> type) {
-        components.removeObject(type);
+    public <T extends ECSComponent> ECSComponent[] removeComponent(Class<T> type) {
+        ECSComponent[] arr = components.getObjects(type, new ECSComponent[0]);
+        components.removeObjects(type);
+        return arr;
     }
     
     public <T extends ECSComponent> T getComponent(Class<T> type) {
@@ -41,6 +44,10 @@ public final class ECSEntity extends SafeHandled {
     
     void onRender() {
         foreach(ECSComponent::onRender);
+    }
+    
+    void onDestroy() {
+        foreach(ECSComponent::onCleanup);
     }
     
     private void foreach(Foreach<ECSComponent> action) {

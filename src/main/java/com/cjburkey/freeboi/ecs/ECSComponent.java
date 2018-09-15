@@ -1,5 +1,7 @@
 package com.cjburkey.freeboi.ecs;
 
+import com.cjburkey.freeboi.components.Transform;
+
 public abstract class ECSComponent extends SafeHandled {
     
     private ECSEntity entity;
@@ -14,10 +16,15 @@ public abstract class ECSComponent extends SafeHandled {
     
     final void handleRem() {
         onRemove();
+        onCleanup();
     }
     
     public final ECSEntity getEntity() {
         return entity;
+    }
+    
+    public final Transform getTransform() {
+        return entity.transform;
     }
     
     void handleAdd() {
@@ -32,14 +39,17 @@ public abstract class ECSComponent extends SafeHandled {
     
     public void onAdd() {
     }
-
+    
     public void onUpdate() {
     }
-
+    
     public void onRender() {
     }
-
+    
     public void onRemove() {
+    }
+    
+    public void onCleanup() {
     }
     
 }

@@ -50,7 +50,7 @@ public class Camera extends ECSComponent {
     }
     
     public Matrix4f getViewMatrix() {
-        return viewMatrix.identity().rotate(getEntity().transform.rotation).translate(getEntity().transform.position.negate(new Vector3f()));
+        return viewMatrix.identity().rotate(getTransform().rotation).translate(getTransform().position.negate(new Vector3f()));
     }
     
     public void makeMain() {

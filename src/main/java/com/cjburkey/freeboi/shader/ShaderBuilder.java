@@ -1,6 +1,7 @@
 package com.cjburkey.freeboi.shader;
 
 import com.cjburkey.freeboi.util.IO;
+import com.cjburkey.freeboi.value.Resource;
 
 public class ShaderBuilder {
     
@@ -42,7 +43,7 @@ public class ShaderBuilder {
         return null;
     }
     
-    public Shader buildFromResources(String vertexFile, String geometryFile, String fragmentFile) {
+    public Shader buildFromResources(Resource vertexFile, Resource geometryFile, Resource fragmentFile) {
         String vertexString = null;
         String geometryString = null;
         String fragmentString = null;

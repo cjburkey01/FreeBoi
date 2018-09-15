@@ -2,7 +2,7 @@ package com.cjburkey.freeboi.ecs;
 
 public final class ECSWorld {
     
-    private SafeHandle<ECSEntity> entities = new SafeHandle<>();
+    private final SafeHandle<ECSEntity> entities = new SafeHandle<>(false);
     
     public ECSEntity createEntity() {
         ECSEntity entity = new ECSEntity();
@@ -18,6 +18,10 @@ public final class ECSWorld {
     
     public void onRender() {
         entities.foreach(ECSEntity::onRender);
+    }
+    
+    public void onExit() {
+        entities.foreach(ECSEntity::onDestroy);
     }
     
 }

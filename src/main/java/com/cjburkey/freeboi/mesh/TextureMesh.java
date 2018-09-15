@@ -10,6 +10,7 @@ public class TextureMesh extends Mesh {
     
     private final int uvbo;
     public Texture texture;
+    public boolean cleanupTexture = true;
     
     public TextureMesh(float[] vertices, float[] uvs, short[] indices) {
         super(vertices, indices);
@@ -19,6 +20,9 @@ public class TextureMesh extends Mesh {
     
     protected void onCleanup() {
         glDeleteBuffers(uvbo);
+        if (cleanupTexture) {
+            texture.destroy();
+        }
     }
     
     public Shader getShader() {
