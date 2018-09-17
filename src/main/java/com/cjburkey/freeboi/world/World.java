@@ -6,7 +6,9 @@ import com.cjburkey.freeboi.block.BlockType;
 import com.cjburkey.freeboi.components.MeshRenderer;
 import com.cjburkey.freeboi.components.Transform;
 import com.cjburkey.freeboi.concurrent.ActionSet;
+import com.cjburkey.freeboi.concurrent.IAction;
 import com.cjburkey.freeboi.concurrent.ThreadPool;
+import com.cjburkey.freeboi.concurrent.ThreadSafeHandler;
 import com.cjburkey.freeboi.ecs.ECSEntity;
 import com.cjburkey.freeboi.ecs.ECSWorld;
 import com.cjburkey.freeboi.mesh.ChunkMesh;
@@ -20,21 +22,20 @@ import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.joml.Vector3f;
 
 public class World {
     
-    public final int chunkLoadingRadius;
-    public final float updateInterval;
-    public final float unloadTime;
+    private final int chunkLoadingRadius;
+    private final float updateInterval;
+    private final float unloadTime;
     private float updateTimer = 0.0f;
     
     private final Object2ObjectOpenHashMap<Pos, Chunk> chunks = new Object2ObjectOpenHashMap<>();
     private final Object2FloatOpenHashMap<Pos> chunksToUnload = new Object2FloatOpenHashMap<>();
     private final ThreadPool generationThreadPool = new ThreadPool("ChunkGeneration", 4);
     private final Object2ObjectOpenHashMap<UUID, Transform> loaders = new Object2ObjectOpenHashMap<>();
-    private final ConcurrentLinkedQueue<Pos> finishedChunks = new ConcurrentLinkedQueue<>();
+    private final ThreadSafeHandler threadSafeHandler = new ThreadSafeHandler();
     
     public World(int chunkLoadingRadius, float updateInterval, float unloadTime) {
         this.chunkLoadingRadius = chunkLoadingRadius;
@@ -66,9 +67,7 @@ public class World {
         }
         updateTimer -= updateInterval;
         
-        while (!finishedChunks.isEmpty()) {
-            Game.EVENT_HANDLER.trigger(new ChunkGenerationFinish(chunks.get(finishedChunks.poll())));
-        }
+        threadSafeHandler.update();
         
         ObjectOpenHashSet<Pos> chunksToRemove = new ObjectOpenHashSet<>();
         for (Pos chunkToUnload : chunksToUnload.keySet()) {
@@ -129,8 +128,8 @@ public class World {
         Game.EVENT_HANDLER.trigger(new ChunkGenerationBegin(chunk));
         
         // TODO: TEMP
-        generationThreadPool.queueAction(ActionSet.build(() -> {
-            BlockType testBlockType = new BlockType("freeboi", "test");
+        generationThreadPool.queueAction(ActionSet.buildComplete(() -> queue(() -> Game.EVENT_HANDLER.trigger(new ChunkGenerationBegin(chunk))), () -> {
+            BlockType testBlockType = new BlockType("freeboi", "test", 0, 0);
             for (int x = 0; x < Chunk.SIZE; x ++) {
                 for (int y = 0; y < Chunk.SIZE; y ++) {
                     for (int z = 0; z < Chunk.SIZE; z ++) {
@@ -140,10 +139,15 @@ public class World {
                     }
                 }
             }
+        }, () -> {
             chunk.markGenerated();
-            finishedChunks.offer(chunk.chunkPos);
+            queue(() -> Game.EVENT_HANDLER.trigger(new ChunkGenerationFinish(chunk)));
         }));
         // TODO: END TEMP
+    }
+    
+    private void queue(IAction action) {
+        threadSafeHandler.queue(action);
     }
     
     // Queues the chunk's generation if necessary

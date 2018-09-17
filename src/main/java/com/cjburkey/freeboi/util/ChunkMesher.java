@@ -27,8 +27,8 @@ public final class ChunkMesher {
     }
     
     private static void addBlock(ChunkMeshBuilder mesh, Chunk chunk, BlockState block) {
-        final Vector2f uvMin = new Vector2f().zero();
-        final Vector2f uvMax = new Vector2f(1.0f / 32.0f, 1.0f / 32.0f);
+        final Vector2f uvMin = block.blockType.getAtlasPos();
+        final Vector2f uvMax = uvMin.add(new Vector2f(1.0f / 32.0f, 1.0f / 32.0f), new Vector2f());
         
         // Front
         if (chunk.isTransparent(block.blockInChunkPos.south())) {
