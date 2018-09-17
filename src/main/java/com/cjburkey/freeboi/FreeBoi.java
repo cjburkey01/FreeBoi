@@ -122,14 +122,14 @@ public final class FreeBoi {
             }
         }
         
+        Debug.log("Exiting FreeBoi");
         world.onExit();
         Game.exit();
         Callbacks.glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
         glfwTerminate();
         GLFWErrorCallback.createPrint(null).set();
-        
-        Debug.log("Exiting FreeBoi");
+        Debug.log("Exited FreeBoi");
     }
     
     private void setTitle() {

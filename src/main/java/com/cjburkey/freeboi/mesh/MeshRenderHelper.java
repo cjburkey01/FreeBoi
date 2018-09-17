@@ -3,7 +3,6 @@ package com.cjburkey.freeboi.mesh;
 import com.cjburkey.freeboi.components.Camera;
 import com.cjburkey.freeboi.components.Transform;
 import com.cjburkey.freeboi.shader.Shader;
-import org.joml.Matrix4f;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -20,7 +19,7 @@ public class MeshRenderHelper {
     }
     
     public final void render(Camera camera, Transform transform) {
-        if (camera == null || transform == null || !canRender()) {
+        if (camera == null || transform == null || cannotRender()) {
             return;
         }
         
@@ -32,19 +31,18 @@ public class MeshRenderHelper {
             mesh.getShader().setUniform("viewMatrix", camera.getViewMatrix());
         }
         if (mesh.getShader().getIsModelMatrixEnabled()) {
-            Matrix4f m = transform.getModelMatrix();
-            mesh.getShader().setUniform("modelMatrix", m);
+            mesh.getShader().setUniform("modelMatrix", transform.getModelMatrix());
         }
         
         mesh.bind();
         glDrawElements(GL_TRIANGLES, mesh.triangleCount, GL_UNSIGNED_SHORT, 0L);
         mesh.unbind();
-
+        
         Shader.unbind();
     }
     
-    public boolean canRender() {
-        return (mesh != null && mesh.getIsValid() && mesh.getShader() != null && mesh.getShader().isValid());
+    public boolean cannotRender() {
+        return (mesh == null || !mesh.getIsValid() || mesh.getShader() == null || !mesh.getShader().isValid());
     }
     
 }

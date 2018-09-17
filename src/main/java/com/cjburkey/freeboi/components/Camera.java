@@ -42,7 +42,7 @@ public class Camera extends ECSComponent {
     }
     
     public Matrix4f getProjectionMatrix() {
-        return projectionMatrix;
+        return new Matrix4f(projectionMatrix);
     }
     
     private void updateProjectionMatrix(float fov, float near, float far) {

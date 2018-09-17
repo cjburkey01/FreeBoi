@@ -1,54 +1,38 @@
 package com.cjburkey.freeboi;
 
-import com.cjburkey.freeboi.block.BlockType;
-import com.cjburkey.freeboi.chunk.Chunk;
 import com.cjburkey.freeboi.components.Camera;
 import com.cjburkey.freeboi.components.FreeMoveCamera;
-import com.cjburkey.freeboi.components.MeshRenderer;
+import com.cjburkey.freeboi.ecs.ECSEntity;
+import com.cjburkey.freeboi.event.EventHandler;
+import com.cjburkey.freeboi.input.Input;
 import com.cjburkey.freeboi.input.Key;
-import com.cjburkey.freeboi.mesh.ChunkMesh;
 import com.cjburkey.freeboi.shader.Shader;
 import com.cjburkey.freeboi.shader.ShaderBuilder;
-import com.cjburkey.freeboi.util.ChunkMesher;
 import com.cjburkey.freeboi.util.IO;
-import com.cjburkey.freeboi.input.Input;
-import com.cjburkey.freeboi.util.Rand;
-import com.cjburkey.freeboi.value.Pos;
+import com.cjburkey.freeboi.util.Texture;
 import com.cjburkey.freeboi.value.Resource;
+import com.cjburkey.freeboi.world.World;
+import com.cjburkey.freeboi.world.event.ChunkGenerationFinish;
 
 public final class Game {
     
+    public static final EventHandler EVENT_HANDLER = new EventHandler();
+    
+    private static Texture atlasTexture;
     private static Shader basicTextureShader;
-    private static boolean wireframe = false;
-    private static boolean vsync = false;
-    private static float time = 0.0f;
+    
+    public static final World world = new World(4, 0.25f, 5.0f);
     
     static void start() {
         // Create the main camera
-        FreeBoi.instance.world.createEntity().addComponent(new Camera()).addComponent(new FreeMoveCamera());
+        ECSEntity cam = FreeBoi.instance.world.createEntity().addComponent(new Camera()).addComponent(new FreeMoveCamera());
         
-        // Create the basic textured shader for the chunk
         buildBasicTextureShader();
+        atlasTexture = IO.loadResourceTexture(new Resource("freeboi", "texture/atlas.png"));
         
-        // Create a simple test chunk (for experiment purposes)
-        Debug.log("Building test chunk mesh");
-        Chunk chunk = new Chunk(new Pos());
-        BlockType testBlockType = new BlockType("freeboi", "test");
-        for (int x = 0; x < Chunk.chunkSize; x ++) {
-            for (int y = 0; y < Chunk.chunkSize; y ++) {
-                for (int z = 0; z < Chunk.chunkSize; z ++) {
-                    if (Rand.rIntI(0, y * 2) == 0) {
-                        chunk.setBlock(new Pos(x, y, z), testBlockType);
-                    }
-                }
-            }
-        }
-        ChunkMesh mesh = ChunkMesher.meshChunk(chunk);
-        mesh.texture = IO.loadResourceTexture(new Resource("freeboi", "texture/atlas.png"));
-        MeshRenderer renderer = new MeshRenderer();
-        renderer.mesh.set(mesh);
-        FreeBoi.instance.world.createEntity().addComponent(renderer);
-        Debug.log("Built test chunk mesh");
+        world.addChunkLoader(cam);
+        
+        EVENT_HANDLER.addListener(ChunkGenerationFinish.class, (e) -> world.addChunkToScene(FreeBoi.instance.world, atlasTexture, e.chunk.chunkPos));
     }
     
     static void update() {
@@ -67,12 +51,16 @@ public final class Game {
         if (Input.getIsKeyFirstDown(Key.V)) {
             FreeBoi.instance.vsync.flip();
         }
+        
+        world.update(FreeBoi.instance.getDeltaTime());
     }
     
     static void render() {
     }
     
     static void exit() {
+        world.exit();
+        
         basicTextureShader.destroy();
     }
     

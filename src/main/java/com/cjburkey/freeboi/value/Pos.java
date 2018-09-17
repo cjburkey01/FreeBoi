@@ -1,7 +1,9 @@
 package com.cjburkey.freeboi.value;
 
+import com.cjburkey.freeboi.util.Util;
 import java.util.Objects;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 public class Pos {
     
@@ -13,6 +15,14 @@ public class Pos {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+    
+    public Pos(Vector3i position) {
+        this(position.x, position.y, position.z);
+    }
+    
+    public Pos(Vector3f position) {
+        this(Util.floor(position.x), Util.floor(position.y), Util.floor(position.z));
     }
     
     public Pos(int x, int y) {
@@ -27,36 +37,56 @@ public class Pos {
         this(0);
     }
     
+    public Pos add(int x, int y, int z) {
+        return new Pos(this.x + x, this.y + y, this.z + z);
+    }
+    
+    public Pos sub(int x, int y, int z) {
+        return new Pos(this.x - x, this.y - y, this.z - z);
+    }
+    
+    public Pos mul(int x, int y, int z) {
+        return new Pos(this.x * x, this.y * y, this.z * z);
+    }
+    
+    public Pos div(int x, int y, int z) {
+        return new Pos(this.x / x, this.y / y, this.z / z);
+    }
+    
     public Pos add(Pos other) {
-        return new Pos(x + other.x, y + other.y, z + other.z);
+        return add(other.x, other.y, other.z);
     }
     
     public Pos sub(Pos other) {
-        return new Pos(x - other.x, y - other.y, z - other.z);
+        return sub(other.x, other.y, other.z);
     }
     
     public Pos mul(Pos other) {
-        return new Pos(x * other.x, y * other.y, z * other.z);
+        return mul(other.x, other.y, other.z);
     }
     
     public Pos div(Pos other) {
-        return new Pos(x / other.x, y / other.y, z / other.z);
+        return div(other.x, other.y, other.z);
     }
     
     public Pos add(int scalar) {
-        return new Pos(x + scalar, y + scalar, z + scalar);
+        return add(scalar, scalar, scalar);
     }
     
     public Pos sub(int scalar) {
-        return new Pos(x - scalar, y - scalar, z - scalar);
+        return sub(scalar, scalar, scalar);
     }
     
     public Pos mul(int scalar) {
-        return new Pos(x * scalar, y * scalar, z * scalar);
+        return mul(scalar, scalar, scalar);
     }
     
     public Pos div(int scalar) {
-        return new Pos(x / scalar, y / scalar, z / scalar);
+        return div(scalar, scalar, scalar);
+    }
+    
+    public Pos divFloor(int scalar) {
+        return new Pos(Util.divFloor(x, scalar), Util.divFloor(y, scalar), Util.divFloor(y, scalar));
     }
     
     public Pos move(Dir dir, int amount) {
@@ -113,6 +143,10 @@ public class Pos {
     
     public Pos down() {
         return move(Dir.DOWN);
+    }
+    
+    public String toString() {
+        return x + ", " + y + ", " + z;
     }
     
     public boolean equals(Object o) {

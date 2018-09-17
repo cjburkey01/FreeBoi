@@ -20,7 +20,7 @@ public class TextureMesh extends Mesh {
     
     protected void onCleanup() {
         glDeleteBuffers(uvbo);
-        if (cleanupTexture) {
+        if (cleanupTexture && texture.getIsValid()) {
             texture.destroy();
         }
     }

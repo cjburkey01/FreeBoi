@@ -5,9 +5,14 @@ public final class ECSWorld {
     private final SafeHandle<ECSEntity> entities = new SafeHandle<>(false);
     
     public ECSEntity createEntity() {
-        ECSEntity entity = new ECSEntity();
+        ECSEntity entity = new ECSEntity(this);
         entities.addObject(entity);
         return entity;
+    }
+    
+    public void destroy(ECSEntity entity) {
+        entity.onDestroy();
+        entities.removeObject(entity);
     }
     
     public void onUpdate() {
@@ -22,6 +27,10 @@ public final class ECSWorld {
     
     public void onExit() {
         entities.foreach(ECSEntity::onDestroy);
+    }
+    
+    public int getObjects() {
+        return entities.getObjectCount();
     }
     
 }

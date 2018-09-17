@@ -7,13 +7,19 @@ import java.util.UUID;
 
 public final class ECSEntity extends SafeHandled {
     
+    public final ECSWorld world;
     public final UUID uuid = UUID.randomUUID();
     public final Transform transform = new Transform();
     private final SafeHandle<ECSComponent> components = new SafeHandle<>(true);
     public boolean enabled = true;
     
-    ECSEntity() {
+    ECSEntity(ECSWorld world) {
+        this.world = world;
         addComponent(transform);
+    }
+    
+    public void destroy() {
+        world.destroy(this);
     }
     
     public <T extends ECSComponent> ECSEntity addComponent(T component) {

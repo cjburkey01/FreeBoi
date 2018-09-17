@@ -16,10 +16,9 @@ public final class MeshRenderer extends ECSComponent {
     }
     
     public void onRender() {
-        if (meshRenderer == null || !meshRenderer.canRender()) {
-            return;
+        if (meshRenderer != null && !meshRenderer.cannotRender()) {
+            meshRenderer.render(Camera.getMain(), getTransform());
         }
-        meshRenderer.render(Camera.getMain(), getTransform());
     }
     
     public void onCleanup() {

@@ -113,4 +113,20 @@ public final class Util {
         return new Vector3f(0.0f, -1.0f, 0.0f);
     }
     
+    public static int divFloor(int n, int d) {
+        return Math.floorDiv(n ,d);
+    }
+    
+    public static long divFloor(long n, long d) {
+        return Math.floorDiv(n ,d);
+    }
+    
+    public static int floor(float value) {
+        return (int) Math.floor(value);
+    }
+    
+    public static long floor(double value) {
+        return (long) Math.floor(value);
+    }
+    
 }

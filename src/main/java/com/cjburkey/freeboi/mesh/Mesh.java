@@ -1,5 +1,6 @@
 package com.cjburkey.freeboi.mesh;
 
+import com.cjburkey.freeboi.Debug;
 import com.cjburkey.freeboi.shader.Shader;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
