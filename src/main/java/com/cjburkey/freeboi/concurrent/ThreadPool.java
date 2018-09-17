@@ -58,6 +58,7 @@ public final class ThreadPool {
     }
     
     public void stop() {
+        futureActions.clear();
         running = false;
     }
 

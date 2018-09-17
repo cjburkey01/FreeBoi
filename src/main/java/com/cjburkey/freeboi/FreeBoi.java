@@ -20,6 +20,7 @@ public final class FreeBoi {
     public static final SemVer VERSION = SemVer.fromString("0.0.1");
     public static final FreeBoi instance = new FreeBoi();
     public static final String title = "FreeBoi %s | FPS: %.2f | Delta: %.4f | Vsync: %s | Wireframe: %s";
+    public static final boolean debugTiming = true;
     
     private long window;
     private long lastUpdate;
@@ -137,13 +138,27 @@ public final class FreeBoi {
     }
     
     private void update() {
+        long start = 0L;
+        if (debugTiming) {
+            start = System.nanoTime();
+        }
         world.onUpdate();
         Game.update();
+        if (debugTiming) {
+            Debug.log("Update took {}ms", (System.nanoTime() - start) / 1000000);
+        }
     }
     
     private void render() {
+        long start = 0L;
+        if (debugTiming) {
+            start = System.nanoTime();
+        }
         world.onRender();
         Game.render();
+        if (debugTiming) {
+            Debug.log("Render took {}ms", (System.nanoTime() - start) / 1000000);
+        }
     }
     
     public double getDeltaTimeD() {

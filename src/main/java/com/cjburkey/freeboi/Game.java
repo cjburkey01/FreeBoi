@@ -21,7 +21,7 @@ public final class Game {
     private static Texture atlasTexture;
     private static Shader basicTextureShader;
     
-    public static final World world = new World(4, 0.25f, 5.0f);
+    public static final World world = new World(4, 0.25f, 2.5f);
     
     static void start() {
         // Create the main camera

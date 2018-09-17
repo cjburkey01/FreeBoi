@@ -3,7 +3,6 @@ package com.cjburkey.freeboi.world;
 import com.cjburkey.freeboi.Debug;
 import com.cjburkey.freeboi.Game;
 import com.cjburkey.freeboi.block.BlockType;
-import com.cjburkey.freeboi.components.MeshRenderer;
 import com.cjburkey.freeboi.components.Transform;
 import com.cjburkey.freeboi.concurrent.ActionSet;
 import com.cjburkey.freeboi.concurrent.IAction;
@@ -11,10 +10,9 @@ import com.cjburkey.freeboi.concurrent.ThreadPool;
 import com.cjburkey.freeboi.concurrent.ThreadSafeHandler;
 import com.cjburkey.freeboi.ecs.ECSEntity;
 import com.cjburkey.freeboi.ecs.ECSWorld;
-import com.cjburkey.freeboi.mesh.ChunkMesh;
-import com.cjburkey.freeboi.util.ChunkMesher;
 import com.cjburkey.freeboi.util.Rand;
 import com.cjburkey.freeboi.util.Texture;
+import com.cjburkey.freeboi.util.Util;
 import com.cjburkey.freeboi.value.Pos;
 import com.cjburkey.freeboi.world.event.ChunkGenerationBegin;
 import com.cjburkey.freeboi.world.event.ChunkGenerationFinish;
@@ -35,7 +33,8 @@ public class World {
     private final Object2FloatOpenHashMap<Pos> chunksToUnload = new Object2FloatOpenHashMap<>();
     private final ThreadPool generationThreadPool = new ThreadPool("ChunkGeneration", 4);
     private final Object2ObjectOpenHashMap<UUID, Transform> loaders = new Object2ObjectOpenHashMap<>();
-    private final ThreadSafeHandler threadSafeHandler = new ThreadSafeHandler();
+    private final ThreadSafeHandler threadSafeHandler = new ThreadSafeHandler(Integer.MAX_VALUE);
+    private final BlockType testBlockType = new BlockType("freeboi", "test", 3, 3);
     
     public World(int chunkLoadingRadius, float updateInterval, float unloadTime) {
         this.chunkLoadingRadius = chunkLoadingRadius;
@@ -67,6 +66,7 @@ public class World {
         }
         updateTimer -= updateInterval;
         
+        ChunkRenderHelper.update();
         threadSafeHandler.update();
         
         ObjectOpenHashSet<Pos> chunksToRemove = new ObjectOpenHashSet<>();
@@ -120,20 +120,19 @@ public class World {
     }
     
     public void exit() {
+        ChunkRenderHelper.stop();
         generationThreadPool.stop();
     }
     
     private void queueGeneration(final Chunk chunk) {
         chunk.markGenerating();
-        Game.EVENT_HANDLER.trigger(new ChunkGenerationBegin(chunk));
         
-        // TODO: TEMP
         generationThreadPool.queueAction(ActionSet.buildComplete(() -> queue(() -> Game.EVENT_HANDLER.trigger(new ChunkGenerationBegin(chunk))), () -> {
-            BlockType testBlockType = new BlockType("freeboi", "test", 0, 0);
             for (int x = 0; x < Chunk.SIZE; x ++) {
                 for (int y = 0; y < Chunk.SIZE; y ++) {
                     for (int z = 0; z < Chunk.SIZE; z ++) {
-                        if (Rand.rIntI(0, Math.abs(chunk.chunkBlockPos.y) + y * 15) == 0) {
+                        Pos p = new Pos(chunk.chunkBlockPos.x + x, chunk.chunkBlockPos.y + y, chunk.chunkBlockPos.z + z);
+                        if (Rand.rIntI(0, Util.floor(Vector3f.lengthSquared(p.x, p.y, p.z) / 10.0f)) == 0) {
                             chunk.setBlock(new Pos(x, y, z), testBlockType);
                         }
                     }
@@ -143,7 +142,6 @@ public class World {
             chunk.markGenerated();
             queue(() -> Game.EVENT_HANDLER.trigger(new ChunkGenerationFinish(chunk)));
         }));
-        // TODO: END TEMP
     }
     
     private void queue(IAction action) {
@@ -160,15 +158,7 @@ public class World {
     }
     
     public ECSEntity addChunkToScene(ECSWorld scene, Texture texture, Pos pos) {
-        MeshRenderer renderer = new MeshRenderer();
-        Chunk chunk = getChunk(pos);
-        ChunkMesh mesh = ChunkMesher.meshChunk(chunk);
-        mesh.texture = texture;
-        renderer.mesh.set(mesh);
-        ECSEntity entity = scene.createEntity().addComponent(renderer);
-        chunk.setEntity(entity);
-        entity.transform.position.set(chunk.chunkBlockPos.x, chunk.chunkBlockPos.y, chunk.chunkBlockPos.z);
-        return entity;
+        return ChunkRenderHelper.queueChunkRender(scene, texture, getChunk(pos));
     }
     
 }

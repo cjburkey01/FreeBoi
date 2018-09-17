@@ -4,14 +4,21 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ThreadSafeHandler {
     
+    public final int maxUpdates;
     private final ConcurrentLinkedQueue<IAction> actions = new ConcurrentLinkedQueue<>();
     
+    public ThreadSafeHandler(int maxUpdates) {
+        this.maxUpdates = maxUpdates;
+    }
+    
     public void update() {
-        while (!actions.isEmpty()) {
+        int updates = 0;
+        while (!actions.isEmpty() && updates < maxUpdates) {
             IAction action = actions.poll();
             if (action != null) {
                 action.onCall();
             }
+            updates ++;
         }
     }
     

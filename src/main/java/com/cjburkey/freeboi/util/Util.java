@@ -129,4 +129,12 @@ public final class Util {
         return (long) Math.floor(value);
     }
     
+    public static int ceil(float value) {
+        return (int) Math.ceil(value);
+    }
+    
+    public static long ceil(double value) {
+        return (long) Math.ceil(value);
+    }
+    
 }

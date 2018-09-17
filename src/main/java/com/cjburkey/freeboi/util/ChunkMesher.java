@@ -1,15 +1,14 @@
 package com.cjburkey.freeboi.util;
 
 import com.cjburkey.freeboi.block.BlockState;
-import com.cjburkey.freeboi.world.Chunk;
-import com.cjburkey.freeboi.mesh.ChunkMesh;
 import com.cjburkey.freeboi.mesh.ChunkMeshBuilder;
 import com.cjburkey.freeboi.value.Pos;
+import com.cjburkey.freeboi.world.Chunk;
 import org.joml.Vector2f;
 
 public final class ChunkMesher {
     
-    public static ChunkMesh meshChunk(Chunk chunk) {
+    public static ChunkMeshBuilder meshChunk(Chunk chunk) {
         final ChunkMeshBuilder mesh = new ChunkMeshBuilder();
         
         for (int x = 0; x < Chunk.SIZE; x ++) {
@@ -23,7 +22,7 @@ public final class ChunkMesher {
             }
         }
         
-        return mesh.buildMesh();
+        return mesh;
     }
     
     private static void addBlock(ChunkMeshBuilder mesh, Chunk chunk, BlockState block) {

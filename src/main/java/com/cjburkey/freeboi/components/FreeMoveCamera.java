@@ -13,7 +13,8 @@ public final class FreeMoveCamera extends ECSComponent {
     private final Vector2f rotation = new Vector2f().zero();
     private final Vector3f move = new Vector3f().zero();
     
-    public float moveSpeed = 10.0f;
+    public float moveSpeed = 8.0f;
+    public float fastSpeed = 32.0f;
     public float rotationSpeed = 0.25f;
     
     public FreeMoveCamera() {
@@ -31,10 +32,11 @@ public final class FreeMoveCamera extends ECSComponent {
             }
             if (Input.getIsKeyDown(Key.SPACE)) {
                 move.y += 1.0f;
-            } else if (Input.getIsKeyDown(Key.LEFT_SHIFT)) {
+            }
+            if (Input.getIsKeyDown(Key.LEFT_SHIFT)) {
                 move.y -= 1.0f;
             }
-            move.mul(FreeBoi.instance.getDeltaTime() * moveSpeed);
+            move.mul(FreeBoi.instance.getDeltaTime() * (Input.getIsKeyDown(Key.LEFT_CONTROL) ? fastSpeed : moveSpeed));
         }
         
         getTransform().position.add(move);
