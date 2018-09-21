@@ -10,6 +10,10 @@ public final class ECSWorld {
         return entity;
     }
     
+    public ECSEntity[] getEntites() {
+        return entities.getObjects(ECSEntity.class, new ECSEntity[0]);
+    }
+    
     public void destroy(ECSEntity entity) {
         entity.onDestroy();
         entities.removeObject(entity);

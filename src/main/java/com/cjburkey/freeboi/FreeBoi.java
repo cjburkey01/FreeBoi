@@ -1,8 +1,11 @@
 package com.cjburkey.freeboi;
 
+import com.cjburkey.freeboi.components.MeshRenderer;
 import com.cjburkey.freeboi.ecs.ECSWorld;
 import com.cjburkey.freeboi.input.Input;
+import com.cjburkey.freeboi.util.Debug;
 import com.cjburkey.freeboi.util.SemVer;
+import com.cjburkey.freeboi.util.TimeDebug;
 import com.cjburkey.freeboi.value.BoolProperty;
 import com.cjburkey.freeboi.value.Property;
 import org.joml.Vector2i;
@@ -19,7 +22,15 @@ public final class FreeBoi {
     
     public static final SemVer VERSION = SemVer.fromString("0.0.1");
     public static final FreeBoi instance = new FreeBoi();
-    public static final String title = "FreeBoi %s | FPS: %.2f | Delta: %.4f | Vsync: %s | Wireframe: %s";
+    private static final float titleUpdate = 1.0f / 30.0f;
+    // D    Delta time
+    // VS   Vsync enabled
+    // WF   Wireframe enabled
+    // LC   Loaded chunks
+    // CCT  Chunk check timer
+    // MR   Mesh renderers
+    // MM   Memory usage
+    public static final String title = "FreeBoi %s | FPS: %.2f | D: %.4f | VS: %s | WF: %s | LC: %s | CCT: %.4f | MR: %s | MM: %s";
     public static final boolean debugTiming = true;
     
     private long window;
@@ -111,14 +122,15 @@ public final class FreeBoi {
             
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             render();
+            TimeDebug.finishAndPrintAll(0.1f);  // Anything that takes 100ms or more should be logged as causing lag
             glfwSwapBuffers(window);
             
             deltaTime = (System.nanoTime() - lastUpdate) / 1000000000.0d;
             deltaTimeF = (float) deltaTime;
             lastUpdate = System.nanoTime();
             tmpTime += deltaTimeF;
-            if (tmpTime >= 0.1f) {
-                tmpTime -= 0.1f;
+            if (tmpTime >= titleUpdate) {
+                tmpTime -= titleUpdate;
                 setTitle();
             }
         }
@@ -134,31 +146,25 @@ public final class FreeBoi {
     }
     
     private void setTitle() {
-        glfwSetWindowTitle(window, String.format(title, VERSION.toString(), 1.0f / deltaTimeF, deltaTimeF, vsync.get(), wireframe.get()));
+        long available = Runtime.getRuntime().totalMemory() / 1000000L;
+        long used = available - Runtime.getRuntime().freeMemory() / 1000000L;
+        glfwSetWindowTitle(window, String.format(title, VERSION.toString(), 1.0f / deltaTimeF, deltaTimeF, vsync.get(),
+                wireframe.get(), Game.world.getLoadedChunks(), Game.world.getCheckTime(), MeshRenderer.getRenderers().size(),
+                used + "MB / " + available + "MB"));
     }
     
     private void update() {
-        long start = 0L;
-        if (debugTiming) {
-            start = System.nanoTime();
-        }
+        TimeDebug.start("freeboi.update");
         world.onUpdate();
         Game.update();
-        if (debugTiming) {
-            Debug.log("Update took {}ms", (System.nanoTime() - start) / 1000000);
-        }
+        TimeDebug.pause("freeboi.update");
     }
     
     private void render() {
-        long start = 0L;
-        if (debugTiming) {
-            start = System.nanoTime();
-        }
+        TimeDebug.start("freeboi.render");
         world.onRender();
         Game.render();
-        if (debugTiming) {
-            Debug.log("Render took {}ms", (System.nanoTime() - start) / 1000000);
-        }
+        TimeDebug.pause("freeboi.render");
     }
     
     public double getDeltaTimeD() {

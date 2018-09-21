@@ -1,5 +1,6 @@
 package com.cjburkey.freeboi;
 
+import com.cjburkey.freeboi.block.BlockType;
 import com.cjburkey.freeboi.components.Camera;
 import com.cjburkey.freeboi.components.FreeMoveCamera;
 import com.cjburkey.freeboi.ecs.ECSEntity;
@@ -8,9 +9,12 @@ import com.cjburkey.freeboi.input.Input;
 import com.cjburkey.freeboi.input.Key;
 import com.cjburkey.freeboi.shader.Shader;
 import com.cjburkey.freeboi.shader.ShaderBuilder;
+import com.cjburkey.freeboi.util.Debug;
 import com.cjburkey.freeboi.util.IO;
 import com.cjburkey.freeboi.util.Texture;
+import com.cjburkey.freeboi.value.Pos;
 import com.cjburkey.freeboi.value.Resource;
+import com.cjburkey.freeboi.world.Chunk;
 import com.cjburkey.freeboi.world.World;
 import com.cjburkey.freeboi.world.event.ChunkGenerationFinish;
 
@@ -21,7 +25,7 @@ public final class Game {
     private static Texture atlasTexture;
     private static Shader basicTextureShader;
     
-    public static final World world = new World(4, 0.25f, 2.5f);
+    public static final World world = new World(256, 0.5f, 2.5f);
     
     static void start() {
         // Create the main camera
@@ -31,7 +35,12 @@ public final class Game {
         atlasTexture = IO.loadResourceTexture(new Resource("freeboi", "texture/atlas.png"));
         
         world.addChunkLoader(cam);
-        
+//        world.overrideChunkLoading();
+//        world.getChunk(new Pos(0, 1, 0));
+//        world.getChunk(new Pos(0, -1, 0));
+//        world.getChunk(new Pos(-1, -1, 0));
+//        world.getChunk(new Pos(-1, -1, -1));
+         
         EVENT_HANDLER.addListener(ChunkGenerationFinish.class, (e) -> world.addChunkToScene(FreeBoi.instance.world, atlasTexture, e.chunk.chunkPos));
     }
     

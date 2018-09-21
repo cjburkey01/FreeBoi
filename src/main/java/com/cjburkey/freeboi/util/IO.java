@@ -1,6 +1,5 @@
 package com.cjburkey.freeboi.util;
 
-import com.cjburkey.freeboi.Debug;
 import com.cjburkey.freeboi.value.Resource;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

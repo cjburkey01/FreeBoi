@@ -1,13 +1,13 @@
 package com.cjburkey.freeboi.concurrent;
 
-import com.cjburkey.freeboi.Debug;
+import com.cjburkey.freeboi.util.Debug;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class ThreadPool {
     
     public static final int threadSleepBreakMS = 15;
     
-    private final ConcurrentLinkedQueue<ActionSet> futureActions = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<IAction> futureActions = new ConcurrentLinkedQueue<>();
     private final Thread[] threads;
     private boolean running;
     
@@ -24,7 +24,7 @@ public final class ThreadPool {
         }
     }
     
-    public void queueAction(ActionSet action) {
+    public void queueAction(IAction action) {
         if (action != null) {
             futureActions.offer(action);
         }
@@ -34,18 +34,9 @@ public final class ThreadPool {
     private void threadedActivity() {
         while (running) {
             while (!futureActions.isEmpty()) {
-                ActionSet actions = futureActions.poll();
-                if (actions == null) {
-                    continue;
-                }
-                if (actions.onStart != null) {
-                    actions.onStart.onCall();
-                }
-                if (actions.action != null) {
-                    actions.action.onCall();
-                }
-                if (actions.onFinish != null) {
-                    actions.onFinish.onCall();
+                IAction action = futureActions.poll();
+                if (action != null) {
+                    action.onCall();
                 }
             }
             try {

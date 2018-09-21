@@ -1,6 +1,6 @@
 package com.cjburkey.freeboi.shader;
 
-import com.cjburkey.freeboi.Debug;
+import com.cjburkey.freeboi.util.Debug;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.joml.Matrix3f;

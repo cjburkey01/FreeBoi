@@ -1,6 +1,6 @@
 package com.cjburkey.freeboi.ecs;
 
-import com.cjburkey.freeboi.Debug;
+import com.cjburkey.freeboi.util.Debug;
 import com.cjburkey.freeboi.components.Transform;
 import java.util.Objects;
 import java.util.UUID;

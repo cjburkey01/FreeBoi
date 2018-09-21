@@ -1,7 +1,6 @@
 package com.cjburkey.freeboi.world;
 
 import com.cjburkey.freeboi.components.MeshRenderer;
-import com.cjburkey.freeboi.concurrent.ActionSet;
 import com.cjburkey.freeboi.concurrent.ThreadPool;
 import com.cjburkey.freeboi.concurrent.ThreadSafeHandler;
 import com.cjburkey.freeboi.ecs.ECSEntity;
@@ -14,7 +13,7 @@ import com.cjburkey.freeboi.util.Texture;
 public class ChunkRenderHelper {
     
     private static final ThreadPool generationThreadPool = new ThreadPool("ChunkMesher", 4);
-    private static final ThreadSafeHandler threadSafeHandler = new ThreadSafeHandler(1024);
+    private static final ThreadSafeHandler threadSafeHandler = new ThreadSafeHandler(512);
     
     public static void update() {
         threadSafeHandler.update();
@@ -29,7 +28,7 @@ public class ChunkRenderHelper {
             return null;
         }
         final ECSEntity entity = scene.createEntity();
-        generationThreadPool.queueAction(ActionSet.build(() -> {
+        generationThreadPool.queueAction(() -> {
             final ChunkMeshBuilder builder = ChunkMesher.meshChunk(chunk);
             threadSafeHandler.queue(() -> {
                 final ChunkMesh mesh = builder.buildMesh();
@@ -39,7 +38,7 @@ public class ChunkRenderHelper {
                 entity.addComponent(renderer);
                 entity.transform.position.set(chunk.chunkBlockPos.x, chunk.chunkBlockPos.y, chunk.chunkBlockPos.z);
             });
-        }));
+        });
         chunk.setEntity(entity);
         return entity;
     }

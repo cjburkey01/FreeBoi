@@ -1,6 +1,6 @@
 package com.cjburkey.freeboi.input;
 
-import com.cjburkey.freeboi.Debug;
+import com.cjburkey.freeboi.util.Debug;
 import com.cjburkey.freeboi.value.BoolProperty;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;

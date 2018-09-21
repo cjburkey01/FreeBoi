@@ -137,4 +137,12 @@ public final class Util {
         return (long) Math.ceil(value);
     }
     
+    public static int divCeil(int n, int d) {
+        return (int) Math.ceil((float) n / d);
+    }
+    
+    public static long divCeil(long n, long d) {
+        return (long) Math.ceil((double) n / d);
+    }
+    
 }

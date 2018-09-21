@@ -1,6 +1,5 @@
 package com.cjburkey.freeboi.util;
 
-import com.cjburkey.freeboi.Debug;
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;

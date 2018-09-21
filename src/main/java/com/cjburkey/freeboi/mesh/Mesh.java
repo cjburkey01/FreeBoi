@@ -1,8 +1,9 @@
 package com.cjburkey.freeboi.mesh;
 
-import com.cjburkey.freeboi.Debug;
+import com.cjburkey.freeboi.components.Transform;
 import com.cjburkey.freeboi.shader.Shader;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -20,6 +21,7 @@ public abstract class Mesh {
     private final int vbo;
     private final int ebo;
     private boolean valid;
+    private boolean insideFrustum;
     
     public Mesh(float[] vertices, short[] indices) {
         vao = glGenVertexArrays();
@@ -30,6 +32,22 @@ public abstract class Mesh {
         ebo = bufferDataUShort(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, -1, indices);
         
         valid = true;
+    }
+
+    void setInsideFrustum(boolean insideFrustum) {
+        this.insideFrustum = insideFrustum;
+    }
+    
+    public boolean getInsideFrustum() {
+        return insideFrustum;
+    }
+
+    public Vector3f getCenter() {
+        return new Vector3f(0.0f, 0.0f, 0.0f);
+    }
+    
+    public float getBoundingRadius(Transform transform) {
+        return 1.0f;
     }
     
     protected final int bufferDataShort(int bindLocation, int usage, int location, short[] data) {

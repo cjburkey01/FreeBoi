@@ -17,12 +17,16 @@ public class Pos {
         this.z = z;
     }
     
-    public Pos(Vector3i position) {
-        this(position.x, position.y, position.z);
+    public Pos(float x, float y, float z) {
+        this(Util.floor(x), Util.floor(y), Util.floor(z));
     }
     
     public Pos(Vector3f position) {
-        this(Util.floor(position.x), Util.floor(position.y), Util.floor(position.z));
+        this(position.x, position.y, position.z);
+    }
+    
+    public Pos(Vector3i position) {
+        this(position.x, position.y, position.z);
     }
     
     public Pos(int x, int y) {
