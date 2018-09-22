@@ -7,13 +7,14 @@ import com.cjburkey.freeboi.concurrent.ThreadPool;
 import com.cjburkey.freeboi.concurrent.ThreadSafeHandler;
 import com.cjburkey.freeboi.ecs.ECSEntity;
 import com.cjburkey.freeboi.ecs.ECSWorld;
+import com.cjburkey.freeboi.util.Debug;
 import com.cjburkey.freeboi.util.Texture;
 import com.cjburkey.freeboi.util.TimeDebug;
 import com.cjburkey.freeboi.util.Util;
 import com.cjburkey.freeboi.value.Pos;
 import com.cjburkey.freeboi.world.event.ChunkGenerationBegin;
 import com.cjburkey.freeboi.world.event.ChunkGenerationFinish;
-import com.cjburkey.freeboi.world.generation.ChunkGeneratorTest;
+import com.cjburkey.freeboi.world.generation.IChunkGenerator;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -37,8 +38,10 @@ public class World {
     private final ThreadPool generationThreadPool = new ThreadPool("ChunkGeneration", 4);
     private final Object2ObjectOpenHashMap<UUID, Transform> loaders = new Object2ObjectOpenHashMap<>();
     private final ThreadSafeHandler threadSafeHandler = new ThreadSafeHandler(Integer.MAX_VALUE);
+    private final IChunkGenerator generator;
     
-    public World(int chunkLoadingRadiusBlocks, float updateInterval, float unloadTime) {
+    public World(IChunkGenerator generator, int chunkLoadingRadiusBlocks, float updateInterval, float unloadTime) {
+        this.generator = generator;
         this.chunkLoadingRadiusBlocks = chunkLoadingRadiusBlocks;
         this.updateInterval = updateInterval;
         this.unloadTime = unloadTime;
@@ -68,7 +71,7 @@ public class World {
         if (chunks.containsKey(pos)) {
             return chunks.get(pos);
         }
-        Chunk chunk = new Chunk(this, pos);
+        Chunk chunk = new Chunk(this, pos.x, pos.y, pos.z);
         chunks.put(pos, chunk);
         return chunk;
     }
@@ -137,7 +140,6 @@ public class World {
             for (Pos chunkToLoad : chunksToLoad) {
                 if (!chunks.containsKey(chunkToLoad)) {
                     getChunk(chunkToLoad);
-                    //Debug.log("Loaded chunk {}", chunkToLoad);
                 }
             }
             TimeDebug.pause("world.update.loadChunks.load");
@@ -149,7 +151,6 @@ public class World {
     private void unload(Pos chunk) {
         if (chunks.containsKey(chunk)) {
             chunks.remove(chunk).remove();
-            //Debug.log("Unloaded chunk {}", chunk);
         }
     }
     
@@ -160,14 +161,15 @@ public class World {
     
     private void queueGeneration(final Chunk chunk) {
         chunk.markGenerating();
-        
-        generationThreadPool.queueAction(() -> {
-            chunk.init();
-            Game.EVENT_HANDLER.trigger(new ChunkGenerationBegin(chunk));
-            new ChunkGeneratorTest().generate(chunk);
-            chunk.markGenerated();
-            queue(() -> Game.EVENT_HANDLER.trigger(new ChunkGenerationFinish(chunk)));
-        });
+        generationThreadPool.queueAction(() -> generateChunk(chunk));
+    }
+    
+    private void generateChunk(Chunk chunk) {
+        chunk.init();
+        Game.EVENT_HANDLER.trigger(new ChunkGenerationBegin(chunk));
+        generator.generate(chunk);
+        chunk.markGenerated();
+        queue(() -> Game.EVENT_HANDLER.trigger(new ChunkGenerationFinish(chunk)));
     }
     
     private void queue(IAction action) {

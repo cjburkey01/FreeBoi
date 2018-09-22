@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class ThreadPool {
     
-    public static final int threadSleepBreakMS = 15;
+    public static final int threadSleepBreakMS = 1;
     
     private final ConcurrentLinkedQueue<IAction> futureActions = new ConcurrentLinkedQueue<>();
     private final Thread[] threads;

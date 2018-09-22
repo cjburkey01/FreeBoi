@@ -12,7 +12,7 @@ import com.cjburkey.freeboi.util.Texture;
 
 public class ChunkRenderHelper {
     
-    private static final ThreadPool generationThreadPool = new ThreadPool("ChunkMesher", 4);
+    private static final ThreadPool generationThreadPool = new ThreadPool("ChunkMesher", 8);
     private static final ThreadSafeHandler threadSafeHandler = new ThreadSafeHandler(512);
     
     public static void update() {
@@ -36,7 +36,7 @@ public class ChunkRenderHelper {
                 final MeshRenderer renderer = new MeshRenderer();
                 renderer.mesh.set(mesh);
                 entity.addComponent(renderer);
-                entity.transform.position.set(chunk.chunkBlockPos.x, chunk.chunkBlockPos.y, chunk.chunkBlockPos.z);
+                entity.transform.position.set(chunk.getChunkWorldPos().x, chunk.getChunkWorldPos().y, chunk.getChunkWorldPos().z);
             });
         });
         chunk.setEntity(entity);

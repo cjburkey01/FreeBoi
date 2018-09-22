@@ -2,7 +2,6 @@ package com.cjburkey.freeboi.components;
 
 import com.cjburkey.freeboi.FreeBoi;
 import com.cjburkey.freeboi.ecs.ECSComponent;
-import com.cjburkey.freeboi.mesh.FrustumCullingFilter;
 import com.cjburkey.freeboi.value.Property;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -23,7 +22,6 @@ public class Camera extends ECSComponent {
     
     private final Matrix4f projectionMatrix = new Matrix4f().identity();
     private final Matrix4f viewMatrix = new Matrix4f().identity();
-    private final FrustumCullingFilter cullingFilter = new FrustumCullingFilter();
     
     public Camera() {
         if (main == null) {

@@ -2,25 +2,23 @@ package com.cjburkey.freeboi.block;
 
 import com.cjburkey.freeboi.value.Pos;
 import com.cjburkey.freeboi.world.Chunk;
-import com.cjburkey.freeboi.world.World;
 
 public final class BlockState {
     
-    public final World world;
     public final BlockType blockType;
     public final Chunk chunk;
-    public final Pos posInChunk;
+    public final int posInChunkX;
+    public final int posInChunkY;
+    public final int posInChunkZ;
     
-    public BlockState(BlockType blockType, Chunk chunk, Pos posInChunk) {
-        world = chunk.world;
+    private Pos blockPosInChunk;
+    
+    public BlockState(BlockType blockType, Chunk chunk, int posInChunkX, int posInChunkY, int posInChunkZ) {
         this.blockType = blockType;
         this.chunk = chunk;
-        this.posInChunk = posInChunk;
-    }
-    
-    // Air
-    public BlockState(Chunk chunk, Pos blockInChunkPos) {
-        this(null, chunk, blockInChunkPos);
+        this.posInChunkX = posInChunkX;
+        this.posInChunkY = posInChunkY;
+        this.posInChunkZ = posInChunkZ;
     }
     
     public boolean isAir() {
@@ -31,8 +29,15 @@ public final class BlockState {
         return isAir() || blockType.getIsTransparent();
     }
     
+    public Pos getPosInChunk() {
+        if (blockPosInChunk == null) {
+            blockPosInChunk = new Pos(posInChunkX, posInChunkY, posInChunkZ);
+        }
+        return blockPosInChunk;
+    }
+    
     public Pos getWorldPos() {
-        return chunk.chunkBlockPos.add(posInChunk);
+        return chunk.getChunkWorldPos().add(posInChunkX, posInChunkY, posInChunkZ);
     }
     
 }

@@ -30,29 +30,29 @@ public final class ChunkMesher {
     private static void addBlock(ChunkMeshBuilder mesh, Chunk chunk, BlockState block) {
         final Vector2f uvMin = block.blockType.getAtlasPos();
         final Vector2f uvMax = uvMin.add(new Vector2f(1.0f / 32.0f, 1.0f / 32.0f), new Vector2f());
-        final Vector3f blockPos = new Vector3f(block.posInChunk.x, block.posInChunk.y, block.posInChunk.z);
+        final Vector3f blockPos = new Vector3f(block.posInChunkX, block.posInChunkY, block.posInChunkZ);
         // Front
-        if (chunk.isTransparent(block.posInChunk.south())) {
+        if (chunk.isTransparent(block.posInChunkX, block.posInChunkY, block.posInChunkZ + 1)) {
             MeshUtil.addSquare(mesh, blockPos, Util.right(), Util.up(), uvMin, uvMax);
         }
         // Back
-        if (chunk.isTransparent(block.posInChunk.north())) {
+        if (chunk.isTransparent(block.posInChunkX, block.posInChunkY, block.posInChunkZ - 1)) {
             MeshUtil.addSquare(mesh, blockPos.add(Util.right(), new Vector3f()).add(Util.forward()), Util.left(), Util.up(), uvMin, uvMax);
         }
         // Right
-        if (chunk.isTransparent(block.posInChunk.east())) {
+        if (chunk.isTransparent(block.posInChunkX + 1, block.posInChunkY, block.posInChunkZ)) {
             MeshUtil.addSquare(mesh, blockPos.add(Util.right(), new Vector3f()), Util.forward(), Util.up(), uvMin, uvMax);
         }
         // Left
-        if (chunk.isTransparent(block.posInChunk.west())) {
+        if (chunk.isTransparent(block.posInChunkX - 1, block.posInChunkY, block.posInChunkZ)) {
             MeshUtil.addSquare(mesh, blockPos.add(Util.forward(), new Vector3f()), Util.back(), Util.up(), uvMin, uvMax);
         }
         // Top
-        if (chunk.isTransparent(block.posInChunk.up())) {
+        if (chunk.isTransparent(block.posInChunkX, block.posInChunkY + 1, block.posInChunkZ)) {
             MeshUtil.addSquare(mesh, blockPos.add(Util.up(), new Vector3f()), Util.right(), Util.forward(), uvMin, uvMax);
         }
         // Bottom
-        if (chunk.isTransparent(block.posInChunk.down())) {
+        if (chunk.isTransparent(block.posInChunkX, block.posInChunkY - 1, block.posInChunkZ)) {
             MeshUtil.addSquare(mesh, blockPos.add(Util.forward(), new Vector3f()), Util.right(), Util.back(), uvMin, uvMax);
         }
     }

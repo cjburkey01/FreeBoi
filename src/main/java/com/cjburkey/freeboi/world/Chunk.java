@@ -6,25 +6,28 @@ import com.cjburkey.freeboi.ecs.ECSEntity;
 import com.cjburkey.freeboi.util.Util;
 import com.cjburkey.freeboi.value.Pos;
 import java.util.Objects;
-import org.joml.Vector3f;
 
 import static com.cjburkey.freeboi.world.World.*;
 
 public final class Chunk {
     
     public final World world;
-    public final Pos chunkPos;
-    public final Pos chunkBlockPos;
+    public final int x;
+    public final int y;
+    public final int z;
     
     private BlockState[] blocks = null;
     private boolean generated = false;
     private boolean generating = false;
     private ECSEntity entity;
+    private Pos chunkPos;
+    private Pos chunkWorldPos;
     
-    public Chunk(World world, Pos chunkPos) {
+    public Chunk(World world, int x, int y, int z) {
         this.world = world;
-        this.chunkPos = chunkPos;
-        chunkBlockPos = chunkPosToBlockPos(chunkPos);
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
     
     public void init() {
@@ -59,43 +62,77 @@ public final class Chunk {
         return generating;
     }
     
-    public BlockState getBlock(Pos pos) {
-        if (invalid(pos)) {
+    public BlockState getBlock(int x, int y, int z) {
+        if (invalid(x, y, z)) {
             return null;
         }
-        return blocks[index(pos)];
+        return blocks[index(x, y, z)];
     }
     
-    public boolean isAir(Pos pos) {
-        if (invalid(pos)) {
+    public BlockState getBlock(Pos pos) {
+        return getBlock(pos.x, pos.y, pos.z);
+    }
+    
+    public boolean isAir(int x, int y, int z) {
+        if (invalid(x, y, z)) {
             return true;
         }
-        BlockState at = getBlock(pos);
+        BlockState at = getBlock(x, y, z);
         return at == null || at.isAir();
     }
     
-    public boolean isTransparent(Pos pos) {
-        if (invalid(pos) || isAir(pos)) {
-            return true;
-        }
-        return Objects.requireNonNull(getBlock(pos)).getIsTransparent();
+    public boolean isAir(Pos pos) {
+        return isAir(pos.x, pos.y, pos.z);
     }
     
-    public BlockState setBlock(Pos pos, BlockType blockType) {
-        if (invalid(pos)) {
+    public boolean isTransparent(int x, int y, int z) {
+        if (invalid(x, y, z) || isAir(x, y, z)) {
+            return true;
+        }
+        return Objects.requireNonNull(getBlock(x, y, z)).getIsTransparent();
+    }
+    
+    public boolean isTransparent(Pos pos) {
+        return isTransparent(pos.x, pos.y, pos.z);
+    }
+    
+    public BlockState setBlock(int x, int y, int z, BlockType blockType) {
+        if (invalid(x, y, z)) {
             return null;
         }
-        BlockState state = new BlockState(blockType, this, pos);
-        blocks[index(pos)] = state;
+        BlockState state = new BlockState(blockType, this, x, y, z);
+        blocks[index(x, y, z)] = state;
         return state;
     }
     
+    private boolean invalid(int x, int y, int z) {
+        return x < 0 || y < 0 || z < 0 || x >= chunkWidth || y >= chunkHeight || z >= chunkWidth;
+    }
+    
     private boolean invalid(Pos pos) {
-        return pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= chunkWidth || pos.y >= chunkHeight || pos.z >= chunkWidth;
+        return invalid(pos.x, pos.y, pos.z);
+    }
+
+    private int index(int x, int y, int z) {
+        return y * chunkWidth * chunkWidth + x * chunkWidth + z;
     }
     
     private int index(Pos pos) {
-        return pos.y * chunkWidth * chunkWidth + pos.x * chunkWidth + pos.z;
+        return index(pos.x, pos.y, pos.z);
+    }
+    
+    public Pos getChunkPos() {
+        if (chunkPos == null) {
+            chunkPos = new Pos(x, y, z);
+        }
+        return chunkPos;
+    }
+    
+    public Pos getChunkWorldPos() {
+        if (chunkWorldPos == null) {
+            chunkWorldPos = new Pos(x * chunkWidth, y * chunkHeight, z * chunkWidth);
+        }
+        return chunkWorldPos;
     }
     
     public static Pos chunkPosToBlockPos(Pos chunkPos) {
