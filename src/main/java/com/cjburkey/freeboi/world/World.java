@@ -165,7 +165,7 @@ public class World {
     }
     
     private void generateChunk(Chunk chunk) {
-        chunk.init();
+        chunk.initArray();
         Game.EVENT_HANDLER.trigger(new ChunkGenerationBegin(chunk));
         generator.generate(chunk);
         chunk.markGenerated();

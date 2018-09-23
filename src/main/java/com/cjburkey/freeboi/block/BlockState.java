@@ -7,6 +7,7 @@ public final class BlockState {
     
     public final BlockType blockType;
     public final Chunk chunk;
+    public final boolean air;
     public final int posInChunkX;
     public final int posInChunkY;
     public final int posInChunkZ;
@@ -15,18 +16,15 @@ public final class BlockState {
     
     public BlockState(BlockType blockType, Chunk chunk, int posInChunkX, int posInChunkY, int posInChunkZ) {
         this.blockType = blockType;
+        air = blockType == null;
         this.chunk = chunk;
         this.posInChunkX = posInChunkX;
         this.posInChunkY = posInChunkY;
         this.posInChunkZ = posInChunkZ;
     }
     
-    public boolean isAir() {
-        return blockType == null;
-    }
-    
     public boolean getIsTransparent() {
-        return isAir() || blockType.getIsTransparent();
+        return air || blockType.getIsTransparent();
     }
     
     public Pos getPosInChunk() {

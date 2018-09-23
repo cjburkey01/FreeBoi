@@ -12,8 +12,8 @@ import com.cjburkey.freeboi.util.Texture;
 
 public class ChunkRenderHelper {
     
-    private static final ThreadPool generationThreadPool = new ThreadPool("ChunkMesher", 8);
-    private static final ThreadSafeHandler threadSafeHandler = new ThreadSafeHandler(512);
+    private static final ThreadPool generationThreadPool = new ThreadPool("ChunkMesher", 4);
+    private static final ThreadSafeHandler threadSafeHandler = new ThreadSafeHandler(256);
     
     public static void update() {
         threadSafeHandler.update();

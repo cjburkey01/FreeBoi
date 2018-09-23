@@ -19,11 +19,11 @@ import com.cjburkey.freeboi.world.generation.ChunkGeneratorOverworld;
 public final class Game {
     
     public static final EventHandler EVENT_HANDLER = new EventHandler();
+    private static final int chunkLoadRadius = 8;
+    public static final World world = new World(new ChunkGeneratorOverworld(), chunkLoadRadius * 16, 0.5f, 2.5f);
     
     private static Texture atlasTexture;
     private static Shader basicTextureShader;
-    
-    public static final World world = new World(new ChunkGeneratorOverworld(), 128, 0.5f, 2.5f);
     
     static void start() {
         // Create the main camera
@@ -39,7 +39,10 @@ public final class Game {
 //        world.getChunk(new Pos(-1, -1, 0));
 //        world.getChunk(new Pos(-1, -1, -1));
          
-        EVENT_HANDLER.addListener(ChunkGenerationFinish.class, (e) -> world.addChunkToScene(FreeBoi.instance.world, atlasTexture, e.chunk.getChunkPos()));
+        EVENT_HANDLER.addListener(ChunkGenerationFinish.class, (e) -> {
+            world.addChunkToScene(FreeBoi.instance.world, atlasTexture, e.chunk.getChunkPos());
+            
+        });
     }
     
     static void update() {

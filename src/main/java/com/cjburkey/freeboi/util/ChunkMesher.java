@@ -17,7 +17,7 @@ public final class ChunkMesher {
             for (int x = 0; x < World.chunkWidth; x ++) {
                 for (int z = 0; z < World.chunkWidth; z ++) {
                     BlockState block = chunk.getBlock(new Pos(x, y, z));
-                    if (block != null && !block.isAir()) {
+                    if (!block.air) {
                         addBlock(mesh, chunk, block);
                     }
                 }

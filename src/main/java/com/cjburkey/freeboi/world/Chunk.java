@@ -2,9 +2,12 @@ package com.cjburkey.freeboi.world;
 
 import com.cjburkey.freeboi.block.BlockState;
 import com.cjburkey.freeboi.block.BlockType;
+import com.cjburkey.freeboi.data.DataHandler;
 import com.cjburkey.freeboi.ecs.ECSEntity;
 import com.cjburkey.freeboi.util.Util;
 import com.cjburkey.freeboi.value.Pos;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Objects;
 
 import static com.cjburkey.freeboi.world.World.*;
@@ -16,7 +19,9 @@ public final class Chunk {
     public final int y;
     public final int z;
     
-    private BlockState[] blocks = null;
+    //private BlockType[] blocks = null;
+    private final Int2ObjectOpenHashMap<BlockType> blockMap = new Int2ObjectOpenHashMap<>();
+    private final Object2ObjectOpenHashMap<Pos, DataHandler> blockData = new Object2ObjectOpenHashMap<>();
     private boolean generated = false;
     private boolean generating = false;
     private ECSEntity entity;
@@ -30,8 +35,8 @@ public final class Chunk {
         this.z = z;
     }
     
-    public void init() {
-        blocks = new BlockState[chunkWidth * chunkWidth * chunkHeight];
+    void initArray() {
+        //blocks = new BlockType[chunkWidth * chunkWidth * chunkHeight];
     }
     
     void setEntity(ECSEntity entity) {
@@ -55,7 +60,7 @@ public final class Chunk {
     }
     
     public boolean getIsGenerated() {
-        return blocks != null && generated;
+        return /*blocks != null && */generated;
     }
     
     public boolean getIsGenerating() {
@@ -66,7 +71,8 @@ public final class Chunk {
         if (invalid(x, y, z)) {
             return null;
         }
-        return blocks[index(x, y, z)];
+        //return new BlockState(blocks[index(x, y, z)], this, x, y, z);
+        return new BlockState(blockMap.get(index(x, y, z)), this, x, y, z);
     }
     
     public BlockState getBlock(Pos pos) {
@@ -78,7 +84,7 @@ public final class Chunk {
             return true;
         }
         BlockState at = getBlock(x, y, z);
-        return at == null || at.isAir();
+        return at == null || at.air;
     }
     
     public boolean isAir(Pos pos) {
@@ -96,13 +102,11 @@ public final class Chunk {
         return isTransparent(pos.x, pos.y, pos.z);
     }
     
-    public BlockState setBlock(int x, int y, int z, BlockType blockType) {
-        if (invalid(x, y, z)) {
-            return null;
+    public void setBlock(int x, int y, int z, BlockType blockType) {
+        if (!invalid(x, y, z)) {
+            //blocks[index(x, y, z)] = blockType;
+            blockMap.put(index(x, y, z), blockType);
         }
-        BlockState state = new BlockState(blockType, this, x, y, z);
-        blocks[index(x, y, z)] = state;
-        return state;
     }
     
     private boolean invalid(int x, int y, int z) {
